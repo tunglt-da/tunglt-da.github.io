@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DLKS — Business Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg:#f4f6fb;--bg2:#ffffff;--bg3:#eef0f7;
+  --card:#ffffff;--card2:#f8f9fe;
+  --border:#e4e8f5;--border2:#cdd3ec;
+  --shadow:0 1px 4px rgba(60,72,120,.07),0 4px 16px rgba(60,72,120,.06);
+  --shadow2:0 2px 8px rgba(60,72,120,.1),0 8px 24px rgba(60,72,120,.08);
+  --blue:#2563eb;--blue-lt:#eff4ff;
+  --indigo:#4f46e5;--pink:#e8387a;
+  --teal:#0d9488;--amber:#d97706;
+  --green:#16a34a;--red:#dc2626;--purple:#7c3aed;
+  --hotel:#2563eb;--entertain:#e8387a;--flight:#0d9488;--bundle:#7c3aed;
+  --txt:#1e2540;--txt2:#4a5480;--txt3:#8892b8;--txt4:#b8c0d8;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;}
+
+.shell{display:flex;min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{width:220px;min-height:100vh;background:var(--card);border-right:1px solid var(--border);position:fixed;left:0;top:0;bottom:0;z-index:100;overflow-y:auto;display:flex;flex-direction:column;}
+.logo{padding:22px 20px 16px;border-bottom:1px solid var(--border);}
+.logo-mark{font-family:'Instrument Serif',serif;font-size:21px;color:var(--blue);letter-spacing:-.3px;}
+.logo-sub{font-size:10.5px;color:var(--txt3);margin-top:2px;letter-spacing:1.2px;text-transform:uppercase;}
+.nav{padding:10px 0;flex:1;}
+.nav-sect{font-size:10px;letter-spacing:1.8px;text-transform:uppercase;color:var(--txt4);padding:12px 18px 5px;font-weight:600;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 18px;cursor:pointer;border-left:2.5px solid transparent;font-size:13px;font-weight:500;color:var(--txt3);transition:all .18s;}
+.nav-item:hover{color:var(--txt2);background:var(--bg3);}
+.nav-item.active{color:var(--blue);border-left-color:var(--blue);background:var(--blue-lt);}
+.nav-item .ico{font-size:14px;width:18px;text-align:center;}
+.nav-item .badge{margin-left:auto;font-size:9.5px;background:var(--red);color:#fff;padding:1px 6px;border-radius:20px;font-weight:700;}
+
+/* MAIN */
+.main{margin-left:220px;flex:1;display:flex;flex-direction:column;min-width:0;}
+.topbar{background:var(--card);border-bottom:1px solid var(--border);padding:13px 28px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:50;flex-wrap:wrap;}
+.page-title{font-size:15px;font-weight:700;flex:1;color:var(--txt);}
+.filter-group{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.pill{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:5px 13px;font-size:11.5px;cursor:pointer;color:var(--txt3);font-weight:500;transition:all .15s;}
+.pill:hover{border-color:var(--blue);color:var(--blue);}
+.pill.active{background:var(--blue);color:#fff;border-color:var(--blue);font-weight:600;}
+.date-btn{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:11.5px;color:var(--txt2);display:flex;align-items:center;gap:5px;cursor:pointer;}
+
+.content{padding:22px 28px;}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:22px;}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 14px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:box-shadow .2s,transform .2s;}
+.kpi:hover{box-shadow:var(--shadow2);transform:translateY(-1px);}
+.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--kc,var(--blue));border-radius:12px 12px 0 0;}
+.kpi-lbl{font-size:10.5px;color:var(--txt3);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;font-weight:600;}
+.kpi-val{font-size:21px;font-weight:800;line-height:1;margin-bottom:5px;color:var(--kc,var(--blue));}
+.kpi-chg{font-size:11px;display:flex;align-items:center;gap:3px;font-weight:500;}
+.kpi-chg.up{color:var(--green);}.kpi-chg.dn{color:var(--red);}
+.kpi-sub{font-size:10px;color:var(--txt4);margin-top:2px;}
+
+/* SEGMENTS */
+.seg-row{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
+.seg{flex:1;min-width:130px;background:var(--card);border:1.5px solid var(--border);border-radius:11px;padding:13px 14px;cursor:pointer;transition:all .18s;box-shadow:var(--shadow);}
+.seg:hover{border-color:var(--border2);box-shadow:var(--shadow2);}
+.seg.active{border-color:var(--sc,var(--blue));background:var(--sl,var(--blue-lt));}
+.seg-name{font-size:10px;color:var(--txt4);text-transform:uppercase;letter-spacing:.8px;font-weight:600;margin-bottom:5px;}
+.seg-val{font-size:17px;font-weight:800;}
+.seg-share{font-size:10.5px;color:var(--txt4);margin-top:3px;}
+
+/* SECTION HEADER */
+.sec-hdr{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.sec-ttl{font-size:14px;font-weight:700;color:var(--txt);}
+.sec-badge{font-size:9.5px;background:var(--bg3);border:1px solid var(--border);color:var(--txt3);padding:2px 8px;border-radius:20px;letter-spacing:1px;text-transform:uppercase;font-weight:600;}
+.sec-acts{margin-left:auto;display:flex;gap:6px;}
+.btn-s{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 11px;font-size:11px;color:var(--txt3);cursor:pointer;font-weight:500;transition:all .15s;}
+.btn-s:hover{border-color:var(--blue);color:var(--blue);}
+.btn-s.active{background:var(--blue-lt);border-color:var(--blue);color:var(--blue);}
+
+/* CHART ROWS */
+.crow{display:grid;gap:14px;margin-bottom:16px;}
+.crow.c2{grid-template-columns:1fr 1fr;}
+.crow.c3{grid-template-columns:1fr 1fr 1fr;}
+.crow.c21{grid-template-columns:2fr 1fr;}
+
+/* CHART CARD */
+.cc{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:18px;box-shadow:var(--shadow);transition:box-shadow .2s;min-width:0;overflow:hidden;}
+.cc:hover{box-shadow:var(--shadow2);}
+.cc-ttl{font-size:12.5px;font-weight:700;color:var(--txt);margin-bottom:3px;}
+.cc-sub{font-size:10.5px;color:var(--txt3);margin-bottom:14px;}
+
+/* CRITICAL: fixed-height chart wrapper */
+.chart-box{position:relative;width:100%;height:220px;overflow:hidden;}
+.chart-box.h240{height:240px;}
+.chart-box.h260{height:260px;}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto;border-radius:8px;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+th{text-align:left;padding:9px 12px;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--txt3);border-bottom:1.5px solid var(--border);white-space:nowrap;font-weight:700;background:var(--bg3);}
+td{padding:10px 12px;border-bottom:1px solid var(--bg3);color:var(--txt2);white-space:nowrap;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--bg3);color:var(--txt);}
+.rnk{color:var(--txt4);font-size:11px;font-weight:600;}
+.tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700;letter-spacing:.4px;}
+.tag.hotel{background:#eff6ff;color:var(--hotel);}
+.tag.entertain{background:#fdf2f8;color:var(--entertain);}
+.tag.flight{background:#f0fdfb;color:var(--flight);}
+.tag.bundle{background:#faf5ff;color:var(--bundle);}
+.bar-row{display:flex;align-items:center;gap:7px;}
+.bar-tr{flex:1;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;}
+.bar-fi{height:100%;border-radius:3px;}
+
+/* FUNNEL */
+.funnel-box{padding:6px 0;}
+.fstep{display:flex;align-items:center;gap:10px;margin-bottom:8px;position:relative;}
+.fstep::after{content:'';position:absolute;left:88px;top:100%;height:8px;width:1.5px;background:var(--border);}
+.fstep:last-child::after{display:none;}
+.flbl{width:80px;font-size:10.5px;color:var(--txt3);text-align:right;font-weight:500;line-height:1.3;}
+.fbar-w{flex:1;display:flex;align-items:center;}
+.fbar{height:34px;border-radius:7px;display:flex;align-items:center;padding:0 11px;font-size:11.5px;font-weight:700;color:#fff;min-width:55px;}
+.fmeta{width:105px;text-align:right;}
+.fval{font-size:13px;font-weight:800;}
+.fdrop{font-size:10px;color:var(--red);font-weight:600;}
+
+/* CHANNELS */
+.ch-list{display:flex;flex-direction:column;gap:11px;}
+.ch-item{display:flex;flex-direction:column;gap:4px;}
+.ch-row{display:flex;justify-content:space-between;align-items:center;}
+.ch-name{font-size:12.5px;color:var(--txt2);font-weight:500;}
+.ch-num{font-size:11.5px;color:var(--txt3);}
+.ch-tr{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;}
+.ch-fi{height:100%;border-radius:3px;}
+
+/* RATING CARDS */
+.rat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
+.rat-card{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:16px;text-align:center;box-shadow:var(--shadow);}
+.rat-val{font-size:30px;font-weight:800;line-height:1;margin-bottom:4px;}
+.rat-lbl{font-size:10.5px;color:var(--txt3);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;}
+.stars{color:var(--amber);font-size:13px;letter-spacing:1.5px;}
+.rat-trend{font-size:11px;margin-top:5px;font-weight:600;}
+
+.up{color:var(--green);}.dn{color:var(--red);}
+
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(--bg3);}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">DLKS Analytics</div>
+    <div class="logo-sub">Business Intelligence</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-sect">Phân tích</div>
+    <div class="nav-item active" onclick="goSec('overview',this)"><span class="ico">📊</span>Tổng quan KD</div>
+    <div class="nav-item" onclick="goSec('finance',this)"><span class="ico">💰</span>Tài chính</div>
+    <div class="nav-item" onclick="goSec('marketing',this)"><span class="ico">📣</span>Marketing<span class="badge">3</span></div>
+    <div class="nav-item" onclick="goSec('funnel',this)"><span class="ico">🔽</span>Funnel</div>
+    <div class="nav-item" onclick="goSec('operation',this)"><span class="ico">⚙️</span>Vận hành</div>
+    <div class="nav-sect" style="margin-top:8px">Cấp độ xem</div>
+    <div class="nav-item active-lv" id="lv-all" onclick="setLv('all',this)" style="color:var(--blue);border-left-color:var(--blue);background:var(--blue-lt)"><span class="ico">🌐</span>Toàn bộ (ALL)</div>
+    <div class="nav-item" id="lv-category" onclick="setLv('category',this)"><span class="ico">🏷️</span>Ngành hàng</div>
+    <div class="nav-item" id="lv-branch" onclick="setLv('branch',this)"><span class="ico">🏢</span>Cơ sở VP</div>
+    <div class="nav-item" id="lv-campaign" onclick="setLv('campaign',this)"><span class="ico">🎯</span>Chiến dịch</div>
+    <div class="nav-item" id="lv-scheme" onclick="setLv('scheme',this)"><span class="ico">🎁</span>Promo Scheme</div>
+    <div class="nav-item" id="lv-item" onclick="setLv('item',this)"><span class="ico">📦</span>Item / SKU</div>
+  </nav>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+<div class="topbar">
+  <div class="page-title" id="pg-title">📊 Tổng quan kinh doanh</div>
+  <div class="filter-group">
+    <div class="pill active" onclick="setPeriod(this)">Hôm nay</div>
+    <div class="pill" onclick="setPeriod(this)">7 ngày</div>
+    <div class="pill" onclick="setPeriod(this)">Tháng này</div>
+    <div class="pill" onclick="setPeriod(this)">Quý này</div>
+    <div class="pill" onclick="setPeriod(this)">Năm nay</div>
+    <div class="date-btn">📅 01/04 – 04/05/2026</div>
+  </div>
+</div>
+<div class="content">
+
+<!-- OVERVIEW -->
+<div id="sec-overview">
+  <div class="seg-row">
+    <div class="seg active" style="--sc:#2563eb;--sl:#eff4ff" onclick="setSeg(this)">
+      <div class="seg-name">🌐 Toàn bộ</div><div class="seg-val" style="color:var(--blue)">248.7B</div><div class="seg-share">100% GMV</div>
+    </div>
+    <div class="seg" style="--sc:#2563eb;--sl:#eff6ff" onclick="setSeg(this)">
+      <div class="seg-name">🏨 Hotel</div><div class="seg-val" style="color:var(--hotel)">112.3B</div><div class="seg-share">45.2% GMV</div>
+    </div>
+    <div class="seg" style="--sc:#e8387a;--sl:#fdf2f8" onclick="setSeg(this)">
+      <div class="seg-name">🎡 Vé vui chơi</div><div class="seg-val" style="color:var(--entertain)">58.4B</div><div class="seg-share">23.5% GMV</div>
+    </div>
+    <div class="seg" style="--sc:#0d9488;--sl:#f0fdfb" onclick="setSeg(this)">
+      <div class="seg-name">✈️ Máy bay</div><div class="seg-val" style="color:var(--flight)">47.6B</div><div class="seg-share">19.1% GMV</div>
+    </div>
+    <div class="seg" style="--sc:#7c3aed;--sl:#faf5ff" onclick="setSeg(this)">
+      <div class="seg-name">📦 Bundle</div><div class="seg-val" style="color:var(--bundle)">30.4B</div><div class="seg-share">12.2% GMV</div>
+    </div>
+  </div>
+  <div class="kpi-grid">
+    <div class="kpi" style="--kc:#2563eb"><div class="kpi-lbl">GMV</div><div class="kpi-val">248.7B</div><div class="kpi-chg up">▲ +18.4% MoM</div><div class="kpi-sub">vs 209.9B tháng trước</div></div>
+    <div class="kpi" style="--kc:#16a34a"><div class="kpi-lbl">Orders</div><div class="kpi-val">84,320</div><div class="kpi-chg up">▲ +12.7% MoM</div><div class="kpi-sub">74,818 tháng trước</div></div>
+    <div class="kpi" style="--kc:#7c3aed"><div class="kpi-lbl">Traffic UV</div><div class="kpi-val">1.24M</div><div class="kpi-chg up">▲ +9.3% MoM</div><div class="kpi-sub">1.13M tháng trước</div></div>
+    <div class="kpi" style="--kc:#d97706"><div class="kpi-lbl">Conv. Rate</div><div class="kpi-val">6.8%</div><div class="kpi-chg up">▲ +0.4pp</div><div class="kpi-sub">6.4% tháng trước</div></div>
+    <div class="kpi" style="--kc:#e8387a"><div class="kpi-lbl">AOV</div><div class="kpi-val">2.95M</div><div class="kpi-chg up">▲ +5.1% MoM</div><div class="kpi-sub">2.81M tháng trước</div></div>
+    <div class="kpi" style="--kc:#0d9488"><div class="kpi-lbl">CTR</div><div class="kpi-val">4.2%</div><div class="kpi-chg dn">▼ −0.3pp</div><div class="kpi-sub">4.5% tháng trước</div></div>
+  </div>
+  <div class="sec-hdr">
+    <div class="sec-ttl">Xu hướng GMV theo ngày</div>
+    <div class="sec-badge">Tháng 4/2026</div>
+    <div class="sec-acts"><div class="btn-s active">GMV</div><div class="btn-s">Orders</div><div class="btn-s">Traffic</div></div>
+  </div>
+  <div class="crow c21">
+    <div class="cc"><div class="cc-ttl">GMV theo ngày — phân chia ngành hàng</div><div class="cc-sub">4 ngành × 30 ngày</div><div class="chart-box"><canvas id="c-gmvtrend"></canvas></div></div>
+    <div class="cc"><div class="cc-ttl">Phân bổ GMV theo ngành</div><div class="cc-sub">Tháng 4/2026</div><div class="chart-box"><canvas id="c-donut"></canvas></div></div>
+  </div>
+  <div class="crow c2">
+    <div class="cc"><div class="cc-ttl">Tăng trưởng MoM & YoY (%)</div><div class="cc-sub">T4 vs T3/2026 — và cùng kỳ năm ngoái</div><div class="chart-box"><canvas id="c-growth"></canvas></div></div>
+    <div class="cc"><div class="cc-ttl">Chỉ số bán hàng radar</div><div class="cc-sub">CR · AOV · CTR · OOS · ASP · Repeat</div><div class="chart-box"><canvas id="c-radar"></canvas></div></div>
+  </div>
+  <div class="sec-hdr" style="margin-top:4px">
+    <div class="sec-ttl">Top 20 SKU bán chạy nhất</div><div class="sec-badge">Tháng 4/2026</div>
+    <div class="sec-acts"><div class="btn-s active">By Revenue</div><div class="btn-s">By Orders</div></div>
+  </div>
+  <div class="cc"><div class="tbl-wrap"><table><thead><tr><th>#</th><th>Sản phẩm / SKU</th><th>Ngành</th><th>Revenue ↓</th><th>Orders</th><th>AOV</th><th>CR</th><th>OOS%</th><th>MoM</th></tr></thead><tbody id="sku-tbody"></tbody></table></div></div>
+</div>
+
+<!-- FINANCE -->
+<div id="sec-finance" style="display:none">
+  <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+    <div class="kpi" style="--kc:#2563eb"><div class="kpi-lbl">GMV (sau promo)</div><div class="kpi-val">248.7B</div><div class="kpi-chg up">▲ +18.4%</div></div>
+    <div class="kpi" style="--kc:#dc2626"><div class="kpi-lbl">Promo Cost</div><div class="kpi-val">12.4B</div><div class="kpi-chg dn">▲ +8.2% chi phí</div></div>
+    <div class="kpi" style="--kc:#d97706"><div class="kpi-lbl">ROAS</div><div class="kpi-val">20.1×</div><div class="kpi-chg up">▲ +9.4%</div></div>
+    <div class="kpi" style="--kc:#16a34a"><div class="kpi-lbl">% Budget Used</div><div class="kpi-val">78.3%</div><div class="kpi-chg up">On track</div></div>
+  </div>
+  <div class="crow c2">
+    <div class="cc"><div class="cc-ttl">GMV vs Promo Cost theo chiến dịch</div><div class="cc-sub">Kích thước bong bóng = ROAS</div><div class="chart-box"><canvas id="c-bubble"></canvas></div></div>
+    <div class="cc"><div class="cc-ttl">Promotion Scheme — GMV & ROAS</div><div class="cc-sub">6 scheme</div><div class="chart-box"><canvas id="c-scheme"></canvas></div></div>
+  </div>
+  <div class="cc"><div class="cc-ttl">Bảng chi tiết Promotion Scheme</div><div class="cc-sub" style="margin-bottom:14px">Tháng 4/2026</div><div class="tbl-wrap"><table><thead><tr><th>#</th><th>Scheme</th><th>Ngành</th><th>GMV</th><th>Promo Cost</th><th>ROAS</th><th>ROI</th><th>Budget</th><th>Orders</th><th>Status</th></tr></thead><tbody id="scheme-tbody"></tbody></table></div></div>
+</div>
+
+<!-- MARKETING -->
+<div id="sec-marketing" style="display:none">
+  <div class="kpi-grid" style="grid-template-columns:repeat(5,1fr)">
+    <div class="kpi" style="--kc:#7c3aed"><div class="kpi-lbl">Total UV</div><div class="kpi-val">1.24M</div><div class="kpi-chg up">▲ +9.3%</div></div>
+    <div class="kpi" style="--kc:#d97706"><div class="kpi-lbl">CTR</div><div class="kpi-val">4.2%</div><div class="kpi-chg dn">▼ −0.3pp</div></div>
+    <div class="kpi" style="--kc:#16a34a"><div class="kpi-lbl">Conv. Rate</div><div class="kpi-val">6.8%</div><div class="kpi-chg up">▲ +0.4pp</div></div>
+    <div class="kpi" style="--kc:#dc2626"><div class="kpi-lbl">CPC</div><div class="kpi-val">4,280đ</div><div class="kpi-chg up">▼ −7.2%</div></div>
+    <div class="kpi" style="--kc:#0d9488"><div class="kpi-lbl">Repeat Purchase</div><div class="kpi-val">38.4%</div><div class="kpi-chg up">▲ +3.1pp</div></div>
+  </div>
+  <div class="crow c2">
+    <div class="cc"><div class="cc-ttl">Traffic theo kênh</div><div class="cc-sub">UV tháng 4/2026 — 8 kênh</div><div id="ch-list" class="ch-list" style="margin-top:6px"></div></div>
+    <div class="cc"><div class="cc-ttl">CTR & Conv. Rate theo chiến dịch</div><div class="cc-sub">Paid vs Organic</div><div class="chart-box"><canvas id="c-campaign"></canvas></div></div>
+  </div>
+  <div class="crow c2">
+    <div class="cc"><div class="cc-ttl">Chi phí Ads theo kênh</div><div class="cc-sub">CPC · CPM · Cost/Conv</div><div class="chart-box"><canvas id="c-adcost"></canvas></div></div>
+    <div class="cc"><div class="cc-ttl">Repeat Purchase Rate — 6 tháng</div><div class="cc-sub">Xu hướng khách hàng quay lại</div><div class="chart-box"><canvas id="c-repeat"></canvas></div></div>
+  </div>
+</div>
+
+<!-- FUNNEL -->
+<div id="sec-funnel" style="display:none">
+  <div class="crow c2">
+    <div class="cc"><div class="cc-ttl">Funnel chuyển đổi — Tháng 4/2026</div><div class="cc-sub">Search → Impression → Click → Detail → Cart → Order</div><div class="funnel-box" id="funnel-viz" style="margin-top:10px"></div></div>
+    <div class="cc"><div class="cc-ttl">Drop-off rate tại mỗi bước (%)</div><div class="cc-sub">Điểm thất thoát trong hành trình mua</div><div class="chart-box h260"><canvas id="c-dropoff"></canvas></div></div>
+  </div>
+  <div class="crow c2">
+    <div class="cc"><div class="cc-ttl">Funnel theo ngành hàng</div><div class="cc-sub">Conv. rate từng bước</div><div class="chart-box"><canvas id="c-fcompare"></canvas></div></div>
+    <div class="cc"><div class="cc-ttl">Thời gian trung bình mỗi bước (giây)</div><div class="cc-sub">UX insight</div><div class="chart-box"><canvas id="c-ftime"></canvas></div></div>
+  </div>
+</div>
+
+<!-- OPERATION -->
+<div id="sec-operation" style="display:none">
+  <div class="rat-grid" id="rat-grid"></div>
+  <div class="crow c2">
+    <div class="cc"><div class="cc-ttl">Rating trung bình theo cơ sở VP</div><div class="cc-sub">Tháng 4/2026</div><div class="chart-box"><canvas id="c-rating"></canvas></div></div>
+    <div class="cc"><div class="cc-ttl">Cancel · Return · OOS Rate theo tuần</div><div class="cc-sub">5 tuần gần nhất</div><div class="chart-box"><canvas id="c-cancel"></canvas></div></div>
+  </div>
+  <div class="cc"><div class="cc-ttl">Bảng vận hành theo cơ sở VP × Ngành</div><div class="cc-sub" style="margin-bottom:14px">Đánh giá hiệu suất</div><div class="tbl-wrap"><table><thead><tr><th>#</th><th>Cơ sở VP</th><th>Ngành</th><th>Rating</th><th>Reviews</th><th>Cancel%</th><th>Return%</th><th>OOS%</th><th>Đánh giá</th></tr></thead><tbody id="op-tbody"></tbody></table></div></div>
+</div>
+
+</div></main></div>
+
+<script>
+const r  = (a,b)=>Math.round(a+Math.random()*(b-a));
+const rf = (a,b,d=1)=>parseFloat((a+Math.random()*(b-a)).toFixed(d));
+const fmtB=n=>n>=1000?(n/1000).toFixed(1)+'B':n+'M';
+const fmtM=n=>(n/1e6).toFixed(2)+'M';
+const fmtK=n=>n>=1000?(n/1000).toFixed(1)+'K':n;
+
+const CATS   =['Hotel','Vé vui chơi','Máy bay','Bundle'];
+const CATCOL =['#2563eb','#e8387a','#0d9488','#7c3aed'];
+const CATLT  =['#eff4ff','#fdf2f8','#f0fdfb','#faf5ff'];
+const BRANCHES=['VP Hà Nội','VP HCM','VP Đà Nẵng','VP Hải Phòng','VP Cần Thơ','VP Nha Trang'];
+const CAMPAIGNS=['Summer Escape','Flash Sale T4','Loyalty Week','Golden Weekend','MayDay Special'];
+const SCHEMES=['Giảm giá trực tiếp','Tặng voucher','Buy X Get Y','Cashback','Free upgrade','Combo ưu đãi'];
+const CHANNELS=['Social (Zalo/FB)','Notification','Pop-up','EDM','ZNS','Paid Ads','Seeding','Direct'];
+const CHCOL=['#2563eb','#7c3aed','#e8387a','#d97706','#0d9488','#dc2626','#16a34a','#374151'];
+const DAYS=Array.from({length:30},(_,i)=>i+1);
+
+// Chart.js defaults
+Chart.defaults.font.family="'Plus Jakarta Sans',sans-serif";
+Chart.defaults.font.size=11;
+Chart.defaults.color='#4a5480';
+Chart.defaults.borderColor='#e4e8f5';
+
+const TT={backgroundColor:'#fff',borderColor:'#cdd3ec',borderWidth:1,titleColor:'#1e2540',bodyColor:'#4a5480',padding:10,cornerRadius:8};
+const GRID={color:'#f0f2fa'};
+const NOGRID={display:false};
+
+// Shared options builder — always responsive + no aspect ratio (container controls height)
+function opts(extra={}){
+  return {responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:TT},...extra};
+}
+function legendTop(){return {display:true,position:'top',labels:{color:'#4a5480',boxWidth:8,boxHeight:8,usePointStyle:true,pointStyle:'circle',font:{size:11}}};}
+
+const CI={};
+function mc(id,cfg){
+  if(!document.getElementById(id))return;
+  if(CI[id]){CI[id].destroy();}
+  CI[id]=new Chart(document.getElementById(id).getContext('2d'),cfg);
+}
+
+// ——— DATA ———
+function dailyGMV(){
+  return CATS.map((c,i)=>({
+    label:c,
+    data:DAYS.map(d=>Math.round([3800,1950,1600,1050][i]*(1+d*.006)*rf(.82,1.18)*((d%7<2)?1.28:1)))
+  }));
+}
+function genSKUs(){
+  return [
+    ['Vinpearl HN Premium','Hotel'],['InterCon Saigon Suite','Hotel'],
+    ['Sheraton ĐN Deluxe','Hotel'],['VinWonders Phú Quốc','Vé vui chơi'],
+    ['Sun World Bà Nà','Vé vui chơi'],['Flamingo Waterpark VIP','Vé vui chơi'],
+    ['VNA HN-SGN Business','Máy bay'],['Bamboo SGN-DAN Eco','Máy bay'],
+    ['Vietjet HN-PQC Flex','Máy bay'],['HN+DAN 3N Bundle','Bundle'],
+    ['SGN+PQC VIP Package','Bundle'],['Đà Lạt Weekend Combo','Bundle'],
+    ['Six Senses Côn Đảo','Hotel'],['Anantara Hội An','Hotel'],
+    ['Nha Trang Sun Ride','Vé vui chơi'],['Bamboo HN-CAN Biz','Máy bay'],
+    ['Phú Quốc Full Pkg','Bundle'],['Furama Resort ĐN','Hotel'],
+    ['Vietjet SGN-HAN','Máy bay'],['VinWonders NT','Vé vui chơi'],
+  ].map((p,i)=>({rank:i+1,name:p[0],cat:p[1],rev:r(1200,12000)*1e6,orders:r(220,3200),aov:r(850,6200)*1000,cr:rf(3.2,12.8),oos:rf(0.2,4.5),mom:rf(-5,42)}));
+}
+function genSchemes(){
+  const rows=[];
+  SCHEMES.forEach(s=>CATS.forEach(c=>rows.push({scheme:s,cat:c,gmv:r(3000,25000)*1e6,cost:r(200,2500)*1e6,roas:rf(8,32),roi:rf(6,28),budget:rf(55,98),orders:r(800,12000),status:Math.random()>.35?'Active':'Ended'})));
+  return rows;
+}
+const FSTEPS=[
+  {label:'Item Search',col:'#2563eb',val:1240000},
+  {label:'Impression',col:'#4f46e5',val:980000},
+  {label:'Item Click',col:'#7c3aed',val:412000},
+  {label:'Listing View',col:'#0d9488',val:298000},
+  {label:'Detail View',col:'#d97706',val:187000},
+  {label:'Add to Cart',col:'#e8387a',val:98400},
+  {label:'Order',col:'#dc2626',val:84320},
+];
+function genOps(){
+  return BRANCHES.flatMap(b=>CATS.map(c=>({branch:b,cat:c,rating:rf(3.8,5.0),reviews:r(120,3800),cancel:rf(0.8,6.2),returnR:rf(0.2,2.8),oos:rf(0.5,5.0)})));
+}
+
+// ——— BUILDERS ———
+function buildOverview(){
+  const series=dailyGMV();
+  mc('c-gmvtrend',{type:'line',data:{labels:DAYS.map(d=>`${d}/4`),datasets:series.map((s,i)=>({label:s.label,data:s.data,borderColor:CATCOL[i],backgroundColor:CATCOL[i]+'15',borderWidth:2,pointRadius:0,tension:.4,fill:false}))},
+    options:opts({plugins:{legend:legendTop(),tooltip:{...TT,mode:'index',intersect:false,callbacks:{label:c=>`${c.dataset.label}: ${fmtB(c.raw)}đ`}}},scales:{x:{grid:NOGRID,ticks:{maxTicksLimit:10}},y:{grid:GRID,ticks:{callback:v=>fmtB(v)+'đ'}}}})});
+
+  mc('c-donut',{type:'doughnut',data:{labels:CATS,datasets:[{data:[45.2,23.5,19.1,12.2],backgroundColor:CATLT,borderColor:CATCOL,borderWidth:2,hoverOffset:6}]},
+    options:opts({cutout:'68%',plugins:{legend:{display:true,position:'bottom',labels:{color:'#4a5480',boxWidth:10,usePointStyle:true,pointStyle:'circle',padding:10,font:{size:11}}},tooltip:{...TT,callbacks:{label:c=>`${c.label}: ${c.raw}%`}}}})});
+
+  mc('c-growth',{type:'bar',data:{labels:CATS,datasets:[
+    {label:'MoM %',data:[18.4,22.1,14.7,31.2],backgroundColor:CATCOL.map(c=>c+'30'),borderColor:CATCOL,borderWidth:1.5,borderRadius:7},
+    {label:'YoY %',data:[42.3,55.8,38.9,71.4],backgroundColor:CATCOL.map(c=>c+'15'),borderColor:CATCOL.map(c=>c+'80'),borderWidth:1,borderRadius:7}]},
+    options:opts({plugins:{legend:legendTop(),tooltip:TT},scales:{x:{grid:NOGRID},y:{grid:GRID,ticks:{callback:v=>v+'%'}}}})});
+
+  mc('c-radar',{type:'radar',data:{labels:['CR','AOV','CTR','OOS Rate','ASP','Repeat'],datasets:CATS.map((c,i)=>({label:c,data:[[6.8,5.2,4.1,7.3],[72,88,65,81],[4.2,6.1,3.8,5.5],[2.1,3.4,1.8,2.7],[68,82,61,77],[38,44,31,52]][i],borderColor:CATCOL[i],backgroundColor:CATCOL[i]+'18',borderWidth:1.5,pointRadius:3,pointBackgroundColor:CATCOL[i]}))},
+    options:opts({plugins:{legend:legendTop(),tooltip:TT},scales:{r:{grid:{color:'#e4e8f5'},angleLines:{color:'#e4e8f5'},pointLabels:{color:'#8892b8',font:{size:10}},ticks:{display:false}}}})});
+
+  const skus=genSKUs();
+  document.getElementById('sku-tbody').innerHTML=skus.map(s=>{
+    const ck=s.cat==='Hotel'?'hotel':s.cat==='Vé vui chơi'?'entertain':s.cat==='Máy bay'?'flight':'bundle';
+    return`<tr><td class="rnk">${s.rank}</td><td style="color:var(--txt);font-weight:600;max-width:180px;overflow:hidden;text-overflow:ellipsis">${s.name}</td><td><span class="tag ${ck}">${s.cat}</span></td><td style="color:var(--blue);font-weight:700">${(s.rev/1e9).toFixed(2)}B</td><td>${fmtK(s.orders)}</td><td>${(s.aov/1e6).toFixed(2)}M</td><td>${s.cr}%</td><td style="color:${s.oos>3?'var(--red)':s.oos>1.5?'var(--amber)':'var(--green)'}">${s.oos}%</td><td style="color:${s.mom>0?'var(--green)':'var(--red)'};font-weight:600">${s.mom>0?'▲ +':'▼ '}${Math.abs(s.mom)}%</td></tr>`;
+  }).join('');
+}
+
+function buildFinance(){
+  mc('c-bubble',{type:'bubble',data:{datasets:CAMPAIGNS.map((c,i)=>({label:c,data:[{x:r(5,25),y:r(20,120),r:r(8,22)}],backgroundColor:CATCOL[i%4]+'50',borderColor:CATCOL[i%4],borderWidth:1.5}))},
+    options:opts({plugins:{legend:legendTop(),tooltip:TT},scales:{x:{title:{display:true,text:'Promo Cost (tỷ)',color:'#8892b8'},grid:GRID},y:{title:{display:true,text:'GMV (tỷ)',color:'#8892b8'},grid:GRID}}})});
+
+  mc('c-scheme',{type:'bar',data:{labels:SCHEMES,datasets:[
+    {label:'GMV (tỷ)',data:SCHEMES.map(()=>r(15,80)),backgroundColor:'#2563eb20',borderColor:'#2563eb',borderWidth:1.5,borderRadius:5,yAxisID:'y'},
+    {label:'Cost (tỷ)',data:SCHEMES.map(()=>r(1,8)),backgroundColor:'#dc262620',borderColor:'#dc2626',borderWidth:1.5,borderRadius:5,yAxisID:'y'},
+    {label:'ROAS×',data:SCHEMES.map(()=>rf(8,28)),type:'line',borderColor:'#d97706',borderWidth:2,pointRadius:4,pointBackgroundColor:'#d97706',backgroundColor:'transparent',yAxisID:'y2',tension:.3}]},
+    options:opts({plugins:{legend:legendTop(),tooltip:TT},scales:{x:{grid:NOGRID,ticks:{maxRotation:30}},y:{grid:GRID,ticks:{callback:v=>v+'B'}},y2:{position:'right',grid:{display:false},ticks:{callback:v=>v+'×'}}}})});
+
+  const sch=genSchemes().slice(0,15);
+  document.getElementById('scheme-tbody').innerHTML=sch.map((s,i)=>{
+    const ck=s.cat==='Hotel'?'hotel':s.cat==='Vé vui chơi'?'entertain':s.cat==='Máy bay'?'flight':'bundle';
+    return`<tr><td class="rnk">${i+1}</td><td style="color:var(--txt);font-weight:600">${s.scheme}</td><td><span class="tag ${ck}">${s.cat}</span></td><td style="color:var(--blue);font-weight:700">${(s.gmv/1e9).toFixed(1)}B</td><td style="color:var(--red)">${(s.cost/1e9).toFixed(2)}B</td><td style="color:var(--amber);font-weight:700">${s.roas.toFixed(1)}×</td><td>${s.roi.toFixed(1)}×</td><td><div class="bar-row"><div class="bar-tr"><div class="bar-fi" style="width:${s.budget}%;background:${s.budget>85?'#16a34a':'#2563eb'}"></div></div><span style="font-weight:600">${s.budget.toFixed(0)}%</span></div></td><td>${fmtK(s.orders)}</td><td style="color:${s.status==='Active'?'var(--green)':'var(--txt4)'};font-weight:600">${s.status==='Active'?'● Active':'○ Ended'}</td></tr>`;
+  }).join('');
+}
+
+function buildMarketing(){
+  const uvs=[420000,198000,172000,145000,118000,92000,64000,31000];
+  const tot=uvs.reduce((a,b)=>a+b,0);
+  document.getElementById('ch-list').innerHTML=CHANNELS.map((ch,i)=>`
+    <div class="ch-item"><div class="ch-row"><span class="ch-name">${ch}</span><span class="ch-num">${fmtM(uvs[i])}M — ${(uvs[i]/tot*100).toFixed(1)}%</span></div>
+    <div class="ch-tr"><div class="ch-fi" style="width:${(uvs[i]/uvs[0]*100).toFixed(0)}%;background:${CHCOL[i]}"></div></div></div>`).join('');
+
+  mc('c-campaign',{type:'bar',data:{labels:CAMPAIGNS,datasets:[
+    {label:'CTR %',data:CAMPAIGNS.map(()=>rf(2.8,7.2)),backgroundColor:'#2563eb20',borderColor:'#2563eb',borderWidth:1.5,borderRadius:5,yAxisID:'y'},
+    {label:'Conv %',data:CAMPAIGNS.map(()=>rf(3.5,12.4)),backgroundColor:'#16a34a20',borderColor:'#16a34a',borderWidth:1.5,borderRadius:5,yAxisID:'y'},
+    {label:'UV (K)',data:CAMPAIGNS.map(()=>r(45,380)),type:'line',borderColor:'#d97706',borderWidth:2,pointRadius:4,pointBackgroundColor:'#d97706',backgroundColor:'transparent',yAxisID:'y2',tension:.3}]},
+    options:opts({plugins:{legend:legendTop(),tooltip:TT},scales:{x:{grid:NOGRID,ticks:{maxRotation:25}},y:{grid:GRID,ticks:{callback:v=>v+'%'}},y2:{position:'right',grid:{display:false},ticks:{callback:v=>v+'K'}}}})});
+
+  mc('c-adcost',{type:'bar',data:{labels:['Social','Paid Ads','ZNS','EDM','Seeding'],datasets:[
+    {label:'CPC (nghìn đ)',data:[3.2,6.8,1.2,0.8,1.8],backgroundColor:'#7c3aed20',borderColor:'#7c3aed',borderWidth:1.5,borderRadius:5},
+    {label:'CPM (trăm đ)',data:[4.5,8.2,1.8,1.2,2.4],backgroundColor:'#e8387a20',borderColor:'#e8387a',borderWidth:1.5,borderRadius:5},
+    {label:'Cost/Conv',data:[2.4,5.8,0.84,0.62,1.5],backgroundColor:'#d9770620',borderColor:'#d97706',borderWidth:1.5,borderRadius:5}]},
+    options:opts({plugins:{legend:legendTop(),tooltip:TT},scales:{x:{grid:NOGRID},y:{grid:GRID}}})});
+
+  mc('c-repeat',{type:'line',data:{labels:['T11/25','T12/25','T1/26','T2/26','T3/26','T4/26'],datasets:[{label:'Repeat %',data:[29.4,31.8,33.2,35.1,36.8,38.4],borderColor:'#0d9488',backgroundColor:'#0d948818',borderWidth:2.5,pointRadius:5,pointBackgroundColor:'#0d9488',tension:.4,fill:true}]},
+    options:opts({plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>`${c.raw}%`}}},scales:{x:{grid:NOGRID},y:{grid:GRID,min:25,max:45,ticks:{callback:v=>v+'%'}}}})});
+}
+
+function buildFunnel(){
+  const max=FSTEPS[0].val;
+  document.getElementById('funnel-viz').innerHTML=FSTEPS.map((s,i)=>{
+    const pct=(s.val/max*100).toFixed(0);
+    const drop=i>0?((1-s.val/FSTEPS[i-1].val)*100).toFixed(1):null;
+    return`<div class="fstep"><div class="flbl">${s.label}</div><div class="fbar-w"><div class="fbar" style="background:${s.col};width:${Math.max(26,parseInt(pct))}%">${pct}%</div></div><div class="fmeta"><div class="fval" style="color:${s.col}">${(s.val/1000).toFixed(0)}K</div>${drop?`<div class="fdrop">−${drop}% drop</div>`:'<div style="font-size:10px;color:var(--txt4)">Điểm vào</div>'}</div></div>`;
+  }).join('');
+
+  const drops=FSTEPS.slice(1).map((s,i)=>((1-s.val/FSTEPS[i].val)*100).toFixed(1));
+  mc('c-dropoff',{type:'bar',data:{labels:FSTEPS.slice(1).map(s=>s.label),datasets:[{label:'Drop-off %',data:drops,backgroundColor:drops.map(d=>d>40?'#dc262620':d>25?'#d9770620':'#16a34a20'),borderColor:drops.map(d=>d>40?'#dc2626':d>25?'#d97706':'#16a34a'),borderWidth:1.5,borderRadius:6}]},
+    options:opts({indexAxis:'y',plugins:{legend:{display:false},tooltip:{...TT,callbacks:{label:c=>`Drop-off: ${c.raw}%`}}},scales:{x:{grid:GRID,ticks:{callback:v=>v+'%'},max:80},y:{grid:NOGRID}}})});
+
+  mc('c-fcompare',{type:'line',data:{labels:['→Impression','→Click','→Listing','→Detail','→Cart','→Order'],datasets:CATS.map((c,i)=>({label:c,data:[rf(60,95),rf(30,70),rf(50,85),rf(55,88),rf(40,75),rf(60,92)],borderColor:CATCOL[i],backgroundColor:CATCOL[i]+'15',borderWidth:2,pointRadius:4,pointBackgroundColor:CATCOL[i],tension:.3,fill:false}))},
+    options:opts({plugins:{legend:legendTop(),tooltip:TT},scales:{x:{grid:NOGRID,ticks:{maxRotation:35,font:{size:9}}},y:{grid:GRID,ticks:{callback:v=>v+'%'},min:0,max:100}}})});
+
+  mc('c-ftime',{type:'bar',data:{labels:FSTEPS.map(s=>s.label),datasets:[{label:'Avg (giây)',data:[12,8,25,45,72,38,22],backgroundColor:FSTEPS.map(s=>s.col+'28'),borderColor:FSTEPS.map(s=>s.col),borderWidth:1.5,borderRadius:6}]},
+    options:opts({plugins:{legend:{display:false},tooltip:TT},scales:{x:{grid:NOGRID,ticks:{maxRotation:30,font:{size:9}}},y:{grid:GRID,ticks:{callback:v=>v+'s'}}}})});
+}
+
+function buildOperation(){
+  document.getElementById('rat-grid').innerHTML=`
+    <div class="rat-card"><div class="rat-val" style="color:var(--amber)">4.6</div><div class="stars">★★★★★</div><div class="rat-lbl">Rating TB</div><div class="rat-trend up">▲ +0.2 vs tháng trước</div></div>
+    <div class="rat-card"><div class="rat-val" style="color:var(--red)">3.2%</div><div class="rat-lbl">Cancellation Rate</div><div class="rat-trend up">▼ −0.4pp (cải thiện)</div></div>
+    <div class="rat-card"><div class="rat-val" style="color:var(--purple)">1.1%</div><div class="rat-lbl">Return Rate</div><div class="rat-trend up">▼ −0.2pp (cải thiện)</div></div>
+    <div class="rat-card"><div class="rat-val" style="color:var(--green)">2.4%</div><div class="rat-lbl">OOS Rate</div><div class="rat-trend dn">▲ +0.3pp (tăng nhẹ)</div></div>`;
+
+  mc('c-rating',{type:'bar',data:{labels:BRANCHES,datasets:CATS.map((c,i)=>({label:c,data:BRANCHES.map(()=>rf(3.8,5.0)),backgroundColor:CATCOL[i]+'28',borderColor:CATCOL[i],borderWidth:1.5,borderRadius:5}))},
+    options:opts({plugins:{legend:legendTop(),tooltip:TT},scales:{x:{grid:NOGRID,ticks:{maxRotation:30}},y:{grid:GRID,min:3,max:5,ticks:{callback:v=>v+'★'}}}})});
+
+  mc('c-cancel',{type:'line',data:{labels:['W1 T4','W2 T4','W3 T4','W4 T4','W1 T5'],datasets:[
+    {label:'Cancel %',data:[3.8,3.5,3.3,3.1,2.8],borderColor:'#dc2626',backgroundColor:'#dc262618',borderWidth:2,pointRadius:4,pointBackgroundColor:'#dc2626',tension:.4,fill:true},
+    {label:'Return %',data:[1.5,1.4,1.2,1.1,1.0],borderColor:'#d97706',backgroundColor:'#d9770618',borderWidth:2,pointRadius:4,pointBackgroundColor:'#d97706',tension:.4,fill:true},
+    {label:'OOS %',data:[2.0,2.2,2.4,2.3,2.5],borderColor:'#7c3aed',backgroundColor:'#7c3aed18',borderWidth:2,pointRadius:4,pointBackgroundColor:'#7c3aed',tension:.4,fill:true}]},
+    options:opts({plugins:{legend:legendTop(),tooltip:TT},scales:{x:{grid:NOGRID},y:{grid:GRID,ticks:{callback:v=>v+'%'}}}})});
+
+  const ops=genOps().slice(0,15);
+  document.getElementById('op-tbody').innerHTML=ops.map((o,i)=>{
+    const ck=o.cat==='Hotel'?'hotel':o.cat==='Vé vui chơi'?'entertain':o.cat==='Máy bay'?'flight':'bundle';
+    const st=o.rating>=4.5&&o.cancel<3?'Tốt':o.rating>=4&&o.cancel<5?'Ổn':'Cần cải thiện';
+    const sc=st==='Tốt'?'var(--green)':st==='Ổn'?'var(--amber)':'var(--red)';
+    return`<tr><td class="rnk">${i+1}</td><td style="color:var(--txt);font-weight:600">${o.branch}</td><td><span class="tag ${ck}">${o.cat}</span></td><td style="color:var(--amber);font-weight:700">${o.rating.toFixed(1)} ★</td><td>${fmtK(o.reviews)}</td><td style="color:${o.cancel>5?'var(--red)':o.cancel>3?'var(--amber)':'var(--green)'}">${o.cancel.toFixed(1)}%</td><td style="color:${o.returnR>2?'var(--red)':'var(--txt2)'}">${o.returnR.toFixed(1)}%</td><td style="color:${o.oos>4?'var(--red)':o.oos>2?'var(--amber)':'var(--txt2)'}">${o.oos.toFixed(1)}%</td><td style="color:${sc};font-weight:700">${st}</td></tr>`;
+  }).join('');
+}
+
+// ——— NAVIGATION ———
+const SECS={
+  overview:{title:'📊 Tổng quan kinh doanh',fn:buildOverview},
+  finance:{title:'💰 Hiệu quả tài chính',fn:buildFinance},
+  marketing:{title:'📣 Hiệu quả marketing',fn:buildMarketing},
+  funnel:{title:'🔽 Phân tích Funnel',fn:buildFunnel},
+  operation:{title:'⚙️ Vận hành',fn:buildOperation},
+};
+const built=new Set();
+
+function goSec(key,el){
+  Object.keys(SECS).forEach(k=>document.getElementById('sec-'+k).style.display=k===key?'':'none');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(el)el.classList.add('active');
+  document.getElementById('pg-title').textContent=SECS[key].title;
+  if(!built.has(key)){built.add(key);SECS[key].fn();}
+}
+function setLv(key,el){
+  document.querySelectorAll('[id^="lv-"]').forEach(n=>{n.style.color='';n.style.borderLeftColor='transparent';n.style.background='';});
+  el.style.color='var(--blue)';el.style.borderLeftColor='var(--blue)';el.style.background='var(--blue-lt)';
+}
+function setPeriod(el){document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));el.classList.add('active');}
+function setSeg(el){document.querySelectorAll('.seg').forEach(s=>s.classList.remove('active'));el.classList.add('active');}
+
+built.add('overview');
+buildOverview();
+</script>
+</body>
+</html>
