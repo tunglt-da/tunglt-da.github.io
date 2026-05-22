@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Onboarding Journey | Performance Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --bg: #eef1f5;
+            --card: #ffffff;
+            --border: #dde2ea;
+            --text: #2d3748;
+            --muted: #718096;
+            --primary: #c87b1a;
+            --primary-light: #f5deb3;
+            --blue: #3182ce;
+            --green: #38a169;
+            --orange: #dd6b20;
+            --red: #e53e3e;
+            --purple: #805ad5;
+            --teal: #319795;
+            --yellow: #d69e2e;
+            --pink: #d53f8c;
+            --gray: #a0aec0;
+            --radius: 8px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'IBM Plex Sans', sans-serif; background: var(--bg); color: var(--text); font-size: 13px; line-height: 1.5; }
+
+        .header { background: linear-gradient(135deg, #1a365d, #2c5282); color: #fff; padding: 1.1rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+        .header h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: .5px; }
+        .header .sub { font-size: .75rem; opacity: .7; }
+
+        /* Tabs */
+        .tabs { display: flex; background: var(--card); border-bottom: 2px solid var(--border); padding: 0 2rem; overflow-x: auto; position: sticky; top: 0; z-index: 100; }
+        .tab { padding: .7rem 1.4rem; font-size: .78rem; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); border-bottom: 3px solid transparent; cursor: pointer; white-space: nowrap; transition: all .2s; user-select: none; }
+        .tab:hover { color: var(--text); }
+        .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+        /* Filters */
+        .filters { background: var(--card); padding: .8rem 2rem; display: flex; flex-wrap: wrap; gap: .8rem; align-items: center; border-bottom: 1px solid var(--border); }
+        .flt { display: flex; flex-direction: column; gap: .15rem; }
+        .flt-label { font-size: .65rem; font-weight: 600; text-transform: uppercase; color: var(--primary); letter-spacing: .3px; }
+        .flt-val { font-size: .78rem; background: var(--bg); padding: .25rem .65rem; border-radius: 4px; border: 1px solid var(--border); }
+
+        /* Body */
+        .body { padding: 1.25rem 2rem; max-width: 1400px; margin: 0 auto; }
+
+        /* Cards */
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.15rem; margin-bottom: 1.15rem; }
+        .card-t { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--primary); margin-bottom: .9rem; padding-bottom: .45rem; border-bottom: 2px solid var(--primary-light); }
+
+        /* KPI */
+        .kpis { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; margin-bottom: 1.15rem; }
+        .kpi { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.15rem; border-left: 4px solid var(--primary); }
+        .kpi-v { font-size: 1.5rem; font-weight: 700; line-height: 1.2; }
+        .kpi-l { font-size: .72rem; color: var(--muted); font-weight: 500; margin-top: .15rem; }
+
+        /* Grids */
+        .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.15rem; }
+        .g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.15rem; }
+
+        /* Section header */
+        .sec-h { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--primary); margin: 1.25rem 0 .85rem; padding: .45rem .7rem; background: var(--primary-light); border-radius: 4px; border-left: 4px solid var(--primary); }
+
+        /* Chart */
+        .ch { position: relative; width: 100%; }
+
+        /* Page visibility */
+        .page { display: none; }
+        .page.active { display: block; }
+
+        /* Table */
+        .tbl { width: 100%; border-collapse: collapse; font-size: .8rem; }
+        .tbl th { background: #f7fafc; font-weight: 600; text-align: left; padding: .55rem .7rem; border-bottom: 2px solid var(--border); color: var(--text); font-size: .72rem; text-transform: uppercase; letter-spacing: .3px; }
+        .tbl td { padding: .5rem .7rem; border-bottom: 1px solid #edf2f7; }
+        .tbl tr:hover td { background: #f7fafc; }
+        .tbl .num { text-align: right; font-variant-numeric: tabular-nums; }
+        .badge { display: inline-block; padding: .15rem .5rem; border-radius: 3px; font-size: .7rem; font-weight: 600; }
+        .badge-up { background: #c6f6d5; color: #276749; }
+        .badge-down { background: #fed7d7; color: #9b2c2c; }
+
+        /* Score stars */
+        .stars { color: var(--yellow); letter-spacing: 1px; }
+
+        @media (max-width:900px) { .kpis { grid-template-columns: repeat(2,1fr); } .g2,.g3 { grid-template-columns: 1fr; } .body { padding: 1rem; } }
+        @media (max-width:500px) { .kpis { grid-template-columns: 1fr; } .tab { padding: .45rem .7rem; font-size: .68rem; } }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div>
+        <h1>ONBOARDING JOURNEY V3 | PERFORMANCE</h1>
+        <div class="sub">E-Commerce Customer Engagement Analytics</div>
+    </div>
+    <div style="font-size:.72rem;opacity:.65;">Sample Data — Portfolio Demo</div>
+</div>
+
+<div class="tabs" id="tabBar">
+    <div class="tab active" data-page="overall">Overall</div>
+    <div class="tab" data-page="revenue">Revenue</div>
+    <div class="tab" data-page="survey">Survey</div>
+    <div class="tab" data-page="channel">Channel</div>
+    <div class="tab" data-page="content">Content</div>
+    <div class="tab" data-page="user">User</div>
+
+</div>
+
+<div class="filters">
+    <div class="flt"><span class="flt-label">Sent Date</span><span class="flt-val">01/01/2026 – 05/21/2026</span></div>
+    <div class="flt"><span class="flt-label">Open Date</span><span class="flt-val">01/01/2026 – 05/21/2026</span></div>
+    <div class="flt"><span class="flt-label">Purchased Date</span><span class="flt-val">01/01/2026 – 05/21/2026</span></div>
+    <div class="flt"><span class="flt-label">Channel</span><span class="flt-val">All</span></div>
+    <div class="flt"><span class="flt-label">Property</span><span class="flt-val">All</span></div>
+    <div class="flt"><span class="flt-label">Data Type</span><span class="flt-val">Period</span></div>
+</div>
+
+<div class="body">
+
+<!-- ════════════ PAGE: OVERALL ════════════ -->
+<div class="page active" id="page-overall">
+    <div class="kpis">
+        <div class="kpi"><div class="kpi-v">22.8%</div><div class="kpi-l">CTR</div></div>
+        <div class="kpi" style="border-left-color:var(--green)"><div class="kpi-v">185.4M</div><div class="kpi-l">Revenue (VND)</div></div>
+        <div class="kpi" style="border-left-color:var(--blue)"><div class="kpi-v">4.12</div><div class="kpi-l">Avg. Survey Score</div></div>
+        <div class="kpi" style="border-left-color:var(--purple)"><div class="kpi-v">3,842</div><div class="kpi-l">App Installs</div></div>
+    </div>
+    <div class="card"><div class="card-t">Performance Over Time</div><div class="ch" style="height:300px"><canvas id="c-perf"></canvas></div></div>
+    <div class="sec-h">By Channel</div>
+    <div class="g2">
+        <div class="card"><div class="card-t">Channel Performance</div><div class="ch" style="height:240px"><canvas id="c-ch-bar"></canvas></div></div>
+        <div class="card"><div class="card-t">Revenue by Channel (Monthly)</div><div class="ch" style="height:240px"><canvas id="c-ch-rev"></canvas></div></div>
+    </div>
+    <div class="card"><div class="card-t">App Installs by Channel (Weekly)</div><div class="ch" style="height:240px"><canvas id="c-ch-inst"></canvas></div></div>
+    <div class="sec-h">By Property</div>
+    <div class="g2">
+        <div class="card"><div class="card-t">Property Performance</div><div class="ch" style="height:240px"><canvas id="c-prop-bar"></canvas></div></div>
+        <div class="card"><div class="card-t">Revenue by Property</div><div class="ch" style="height:240px"><canvas id="c-prop-pie"></canvas></div></div>
+    </div>
+</div>
+
+<!-- ════════════ PAGE: REVENUE ════════════ -->
+<div class="page" id="page-revenue">
+    <div class="kpis">
+        <div class="kpi"><div class="kpi-v">185.4M</div><div class="kpi-l">Total Revenue</div></div>
+        <div class="kpi" style="border-left-color:var(--green)"><div class="kpi-v">37.1M</div><div class="kpi-l">Avg. Monthly Revenue</div></div>
+        <div class="kpi" style="border-left-color:var(--blue)"><div class="kpi-v">48.2K</div><div class="kpi-l">Avg. Order Value</div></div>
+        <div class="kpi" style="border-left-color:var(--orange)"><div class="kpi-v">+18.3%</div><div class="kpi-l">MoM Growth</div></div>
+    </div>
+    <div class="card"><div class="card-t">Revenue Trend (Monthly)</div><div class="ch" style="height:280px"><canvas id="c-rev-trend"></canvas></div></div>
+    <div class="g2">
+        <div class="card"><div class="card-t">Revenue by Channel</div><div class="ch" style="height:250px"><canvas id="c-rev-channel"></canvas></div></div>
+        <div class="card"><div class="card-t">Revenue by Property</div><div class="ch" style="height:250px"><canvas id="c-rev-prop"></canvas></div></div>
+    </div>
+    <div class="card">
+        <div class="card-t">Revenue Breakdown by Month</div>
+        <table class="tbl">
+            <thead><tr><th>Month</th><th class="num">App Push</th><th class="num">EDM</th><th class="num">SMS</th><th class="num">WhatsApp</th><th class="num">ZNS</th><th class="num">Total</th><th class="num">MoM</th></tr></thead>
+            <tbody>
+                <tr><td>Jan 2026</td><td class="num">15.2M</td><td class="num">1.1M</td><td class="num">0.8M</td><td class="num">6.4M</td><td class="num">4.1M</td><td class="num"><strong>27.6M</strong></td><td class="num"><span class="badge badge-up">—</span></td></tr>
+                <tr><td>Feb 2026</td><td class="num">7.3M</td><td class="num">0.9M</td><td class="num">1.2M</td><td class="num">4.5M</td><td class="num">2.3M</td><td class="num"><strong>16.2M</strong></td><td class="num"><span class="badge badge-down">-41.3%</span></td></tr>
+                <tr><td>Mar 2026</td><td class="num">12.8M</td><td class="num">2.1M</td><td class="num">1.0M</td><td class="num">5.8M</td><td class="num">6.2M</td><td class="num"><strong>27.9M</strong></td><td class="num"><span class="badge badge-up">+72.2%</span></td></tr>
+                <tr><td>Apr 2026</td><td class="num">42.1M</td><td class="num">1.5M</td><td class="num">0.9M</td><td class="num">3.2M</td><td class="num">3.8M</td><td class="num"><strong>51.5M</strong></td><td class="num"><span class="badge badge-up">+84.6%</span></td></tr>
+                <tr><td>May 2026</td><td class="num">28.5M</td><td class="num">3.4M</td><td class="num">1.1M</td><td class="num">5.1M</td><td class="num">24.5M</td><td class="num"><strong>62.6M</strong></td><td class="num"><span class="badge badge-up">+21.6%</span></td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ════════════ PAGE: SURVEY ════════════ -->
+<div class="page" id="page-survey">
+    <div class="kpis">
+        <div class="kpi"><div class="kpi-v">4.12</div><div class="kpi-l">Avg. Score (out of 5)</div></div>
+        <div class="kpi" style="border-left-color:var(--green)"><div class="kpi-v">2,847</div><div class="kpi-l">Total Responses</div></div>
+        <div class="kpi" style="border-left-color:var(--blue)"><div class="kpi-v">68.4%</div><div class="kpi-l">Response Rate</div></div>
+        <div class="kpi" style="border-left-color:var(--yellow)"><div class="kpi-v">82.1%</div><div class="kpi-l">Satisfaction (4+)</div></div>
+    </div>
+    <div class="card"><div class="card-t">Avg. Score Over Time</div><div class="ch" style="height:280px"><canvas id="c-surv-trend"></canvas></div></div>
+    <div class="g2">
+        <div class="card"><div class="card-t">Score Distribution</div><div class="ch" style="height:250px"><canvas id="c-surv-dist"></canvas></div></div>
+        <div class="card"><div class="card-t">Score by Channel</div><div class="ch" style="height:250px"><canvas id="c-surv-ch"></canvas></div></div>
+    </div>
+    <div class="card">
+        <div class="card-t">Survey by Property</div>
+        <table class="tbl">
+            <thead><tr><th>Property</th><th class="num">Responses</th><th class="num">Avg. Score</th><th>Rating</th><th class="num">Satisfaction</th></tr></thead>
+            <tbody>
+                <tr><td>Property A</td><td class="num">982</td><td class="num">4.28</td><td><span class="stars">★★★★☆</span></td><td class="num">86.3%</td></tr>
+                <tr><td>Property B</td><td class="num">714</td><td class="num">4.05</td><td><span class="stars">★★★★☆</span></td><td class="num">79.8%</td></tr>
+                <tr><td>Property C</td><td class="num">658</td><td class="num">4.15</td><td><span class="stars">★★★★☆</span></td><td class="num">83.1%</td></tr>
+                <tr><td>Property D</td><td class="num">312</td><td class="num">3.92</td><td><span class="stars">★★★★☆</span></td><td class="num">74.2%</td></tr>
+                <tr><td>Property E</td><td class="num">181</td><td class="num">4.01</td><td><span class="stars">★★★★☆</span></td><td class="num">78.5%</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ════════════ PAGE: CHANNEL ════════════ -->
+<div class="page" id="page-channel">
+    <div class="kpis">
+        <div class="kpi"><div class="kpi-v">5</div><div class="kpi-l">Active Channels</div></div>
+        <div class="kpi" style="border-left-color:var(--green)"><div class="kpi-v">203K</div><div class="kpi-l">Total Sent</div></div>
+        <div class="kpi" style="border-left-color:var(--blue)"><div class="kpi-v">135K</div><div class="kpi-l">Total Delivered</div></div>
+        <div class="kpi" style="border-left-color:var(--orange)"><div class="kpi-v">66.5%</div><div class="kpi-l">Avg. Delivery Rate</div></div>
+    </div>
+    <div class="card"><div class="card-t">Channel Delivery Trend (Weekly)</div><div class="ch" style="height:280px"><canvas id="c-chn-trend"></canvas></div></div>
+    <div class="g2">
+        <div class="card"><div class="card-t">CTR by Channel</div><div class="ch" style="height:250px"><canvas id="c-chn-ctr"></canvas></div></div>
+        <div class="card"><div class="card-t">Conversion Rate by Channel</div><div class="ch" style="height:250px"><canvas id="c-chn-conv"></canvas></div></div>
+    </div>
+    <div class="card">
+        <div class="card-t">Channel Summary</div>
+        <table class="tbl">
+            <thead><tr><th>Channel</th><th class="num">Users</th><th class="num">Sent</th><th class="num">Delivered</th><th class="num">Delivery %</th><th class="num">CTR</th><th class="num">Conv. Rate</th></tr></thead>
+            <tbody>
+                <tr><td>WhatsApp</td><td class="num">48,200</td><td class="num">110,500</td><td class="num">40,100</td><td class="num">36.3%</td><td class="num">28.4%</td><td class="num">0.12%</td></tr>
+                <tr><td>App Push</td><td class="num">17,800</td><td class="num">75,200</td><td class="num">73,400</td><td class="num">97.6%</td><td class="num">19.2%</td><td class="num">0.08%</td></tr>
+                <tr><td>EDM</td><td class="num">22,100</td><td class="num">30,400</td><td class="num">26,800</td><td class="num">88.2%</td><td class="num">24.7%</td><td class="num">0.15%</td></tr>
+                <tr><td>ZNS</td><td class="num">7,500</td><td class="num">8,200</td><td class="num">—</td><td class="num">—</td><td class="num">16.8%</td><td class="num">0.06%</td></tr>
+                <tr><td>SMS</td><td class="num">6,200</td><td class="num">6,800</td><td class="num">—</td><td class="num">—</td><td class="num">12.1%</td><td class="num">0.04%</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ════════════ PAGE: CONTENT ════════════ -->
+<div class="page" id="page-content">
+    <div class="kpis">
+        <div class="kpi"><div class="kpi-v">24</div><div class="kpi-l">Active Templates</div></div>
+        <div class="kpi" style="border-left-color:var(--green)"><div class="kpi-v">18.7%</div><div class="kpi-l">Avg. Open Rate</div></div>
+        <div class="kpi" style="border-left-color:var(--blue)"><div class="kpi-v">22.8%</div><div class="kpi-l">Avg. CTR</div></div>
+        <div class="kpi" style="border-left-color:var(--orange)"><div class="kpi-v">3.2x</div><div class="kpi-l">Best vs Worst CTR</div></div>
+    </div>
+    <div class="card"><div class="card-t">CTR by Content Type</div><div class="ch" style="height:280px"><canvas id="c-cnt-type"></canvas></div></div>
+    <div class="card">
+        <div class="card-t">Top 10 Content Templates by CTR</div>
+        <table class="tbl">
+            <thead><tr><th>#</th><th>Template Name</th><th>Channel</th><th class="num">Sent</th><th class="num">CTR</th><th class="num">Conv.</th></tr></thead>
+            <tbody>
+                <tr><td>1</td><td>Welcome Offer — 20% Off</td><td>WhatsApp</td><td class="num">12,400</td><td class="num"><strong>34.2%</strong></td><td class="num">0.28%</td></tr>
+                <tr><td>2</td><td>Booking Reminder — 24h</td><td>App Push</td><td class="num">18,200</td><td class="num"><strong>31.5%</strong></td><td class="num">0.22%</td></tr>
+                <tr><td>3</td><td>Cross-sell: Safari Package</td><td>EDM</td><td class="num">8,600</td><td class="num"><strong>29.8%</strong></td><td class="num">0.19%</td></tr>
+                <tr><td>4</td><td>Post-visit Survey</td><td>ZNS</td><td class="num">5,400</td><td class="num"><strong>27.1%</strong></td><td class="num">—</td></tr>
+                <tr><td>5</td><td>Weekend Flash Sale</td><td>App Push</td><td class="num">15,800</td><td class="num"><strong>26.4%</strong></td><td class="num">0.31%</td></tr>
+                <tr><td>6</td><td>Loyalty Points Reminder</td><td>WhatsApp</td><td class="num">9,200</td><td class="num"><strong>24.9%</strong></td><td class="num">0.14%</td></tr>
+                <tr><td>7</td><td>New Property Launch</td><td>EDM</td><td class="num">11,300</td><td class="num"><strong>23.6%</strong></td><td class="num">0.17%</td></tr>
+                <tr><td>8</td><td>Birthday Voucher</td><td>WhatsApp</td><td class="num">3,100</td><td class="num"><strong>22.1%</strong></td><td class="num">0.25%</td></tr>
+                <tr><td>9</td><td>Re-engagement — 30 days</td><td>App Push</td><td class="num">7,800</td><td class="num"><strong>20.8%</strong></td><td class="num">0.09%</td></tr>
+                <tr><td>10</td><td>Holiday Bundle Promo</td><td>SMS</td><td class="num">4,500</td><td class="num"><strong>19.3%</strong></td><td class="num">0.11%</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ════════════ PAGE: USER ════════════ -->
+<div class="page" id="page-user">
+    <div class="kpis">
+        <div class="kpi"><div class="kpi-v">76,400</div><div class="kpi-l">Total Unique Users</div></div>
+        <div class="kpi" style="border-left-color:var(--green)"><div class="kpi-v">28.3%</div><div class="kpi-l">Repeat Engagement</div></div>
+        <div class="kpi" style="border-left-color:var(--blue)"><div class="kpi-v">3,842</div><div class="kpi-l">App Installs</div></div>
+        <div class="kpi" style="border-left-color:var(--purple)"><div class="kpi-v">5.03%</div><div class="kpi-l">Install Rate</div></div>
+    </div>
+    <div class="card"><div class="card-t">New Users vs Returning Users (Weekly)</div><div class="ch" style="height:280px"><canvas id="c-usr-trend"></canvas></div></div>
+    <div class="g2">
+        <div class="card"><div class="card-t">Users by Language</div><div class="ch" style="height:250px"><canvas id="c-usr-lang"></canvas></div></div>
+        <div class="card"><div class="card-t">Users by Booking Type</div><div class="ch" style="height:250px"><canvas id="c-usr-type"></canvas></div></div>
+    </div>
+    <div class="card">
+        <div class="card-t">User Cohort — Engagement After First Message</div>
+        <table class="tbl">
+            <thead><tr><th>Cohort</th><th class="num">Users</th><th class="num">Day 1</th><th class="num">Day 3</th><th class="num">Day 7</th><th class="num">Day 14</th><th class="num">Day 30</th></tr></thead>
+            <tbody>
+                <tr><td>Jan 2026</td><td class="num">14,200</td><td class="num">42.1%</td><td class="num">28.6%</td><td class="num">18.3%</td><td class="num">12.7%</td><td class="num">8.4%</td></tr>
+                <tr><td>Feb 2026</td><td class="num">12,800</td><td class="num">44.5%</td><td class="num">30.1%</td><td class="num">19.8%</td><td class="num">13.2%</td><td class="num">9.1%</td></tr>
+                <tr><td>Mar 2026</td><td class="num">16,500</td><td class="num">46.2%</td><td class="num">31.4%</td><td class="num">21.5%</td><td class="num">14.8%</td><td class="num">10.2%</td></tr>
+                <tr><td>Apr 2026</td><td class="num">18,100</td><td class="num">48.7%</td><td class="num">33.2%</td><td class="num">22.1%</td><td class="num">15.6%</td><td class="num">—</td></tr>
+                <tr><td>May 2026</td><td class="num">14,800</td><td class="num">45.3%</td><td class="num">29.8%</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+</div><!-- end body -->
+
+<script>
+// ─── TAB SWITCHING ───
+document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        this.classList.add('active');
+        const page = document.getElementById('page-' + this.dataset.page);
+        if (page) page.classList.add('active');
+        // Init charts for that page (lazy)
+        initCharts(this.dataset.page);
+    });
+});
+
+// ─── CHART DEFAULTS ───
+Chart.defaults.font.family = "'IBM Plex Sans', sans-serif";
+Chart.defaults.font.size = 11;
+Chart.defaults.color = '#718096';
+Chart.defaults.plugins.legend.labels.usePointStyle = true;
+Chart.defaults.plugins.legend.labels.pointStyleWidth = 8;
+Chart.defaults.plugins.legend.labels.padding = 14;
+
+const C = { blue:'#3182ce', green:'#38a169', orange:'#dd6b20', red:'#e53e3e', purple:'#805ad5', teal:'#319795', yellow:'#d69e2e', pink:'#d53f8c', gray:'#a0aec0' };
+
+// Helpers
+function rnd(a,b){ return Math.round(a+Math.random()*(b-a)); }
+function rndf(a,b){ return parseFloat((a+Math.random()*(b-a)).toFixed(1)); }
+function gen(n,a,b){ return Array.from({length:n},()=>rnd(a,b)); }
+function genf(n,a,b){ return Array.from({length:n},()=>rndf(a,b)); }
+
+const weeks = [];
+const s = new Date(2026,0,8);
+for(let i=0;i<20;i++){ const d=new Date(s); d.setDate(d.getDate()+i*7); weeks.push((d.getMonth()+1)+'/'+d.getDate()); }
+const months = ['Jan','Feb','Mar','Apr','May'];
+
+// Track which pages have been initialized
+const inited = {};
+
+function initCharts(page) {
+    if (inited[page]) return;
+    inited[page] = true;
+
+    if (page === 'overall') {
+        // Perf line
+        new Chart(document.getElementById('c-perf'), { type:'line', data:{ labels:weeks, datasets:[
+            { label:'Sent Rate %', data:genf(20,35,55), borderColor:C.blue, backgroundColor:C.blue, tension:.3, pointRadius:3, borderWidth:2 },
+            { label:'Delivered Rate %', data:genf(20,58,76), borderColor:C.green, backgroundColor:C.green, tension:.3, pointRadius:3, borderWidth:2 },
+            { label:'CTR %', data:genf(20,15,35), borderColor:C.orange, backgroundColor:C.orange, tension:.3, pointRadius:3, borderWidth:2 },
+            { label:'Conv. Rate %', data:genf(20,.02,.3), borderColor:C.red, backgroundColor:C.red, tension:.3, pointRadius:3, borderWidth:2 }
+        ]}, options:{ responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false}, scales:{ y:{beginAtZero:true,ticks:{callback:v=>v+'%'},grid:{color:'#edf2f7'}}, x:{grid:{display:false}} } } });
+
+        // Channel bar
+        new Chart(document.getElementById('c-ch-bar'), { type:'bar', data:{ labels:['WhatsApp','EDM','App Push','ZNS','SMS'], datasets:[
+            { label:'Users', data:[48200,22100,17800,7500,6200], backgroundColor:C.teal },
+            { label:'Sent', data:[110500,30400,75200,8200,6800], backgroundColor:C.orange },
+            { label:'Delivered', data:[40100,26800,73400,0,0], backgroundColor:C.green }
+        ]}, options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false, scales:{ x:{ticks:{callback:v=>(v/1000)+'K'},grid:{color:'#edf2f7'}}, y:{grid:{display:false}} } } });
+
+        // Channel revenue
+        new Chart(document.getElementById('c-ch-rev'), { type:'bar', data:{ labels:months, datasets:[
+            { label:'App Push', data:[15,7,13,42,29], backgroundColor:C.green },
+            { label:'EDM', data:[1,1,2,2,3], backgroundColor:C.blue },
+            { label:'SMS', data:[1,1,1,1,1], backgroundColor:C.teal },
+            { label:'WhatsApp', data:[6,5,6,3,5], backgroundColor:C.orange },
+            { label:'ZNS', data:[4,2,6,4,25], backgroundColor:C.purple }
+        ]}, options:{ responsive:true, maintainAspectRatio:false, scales:{ x:{stacked:true,grid:{display:false}}, y:{stacked:true,ticks:{callback:v=>v+'M'},grid:{color:'#edf2f7'}} } } });
+
+        // App installs
+        new Chart(document.getElementById('c-ch-inst'), { type:'bar', data:{ labels:weeks.slice(0,16), datasets:[
+            { label:'App Push', data:gen(16,50,210), backgroundColor:C.green },
+            { label:'EDM', data:gen(16,10,75), backgroundColor:C.blue },
+            { label:'SMS', data:gen(16,1,15), backgroundColor:C.teal },
+            { label:'WhatsApp', data:gen(16,5,55), backgroundColor:C.orange },
+            { label:'ZNS', data:gen(16,1,10), backgroundColor:C.purple }
+        ]}, options:{ responsive:true, maintainAspectRatio:false, scales:{ x:{stacked:true,grid:{display:false}}, y:{stacked:true,grid:{color:'#edf2f7'}} } } });
+
+        // Property bar
+        new Chart(document.getElementById('c-prop-bar'), { type:'bar', data:{ labels:['Prop A','Prop B','Prop C','Prop D','Prop E'], datasets:[
+            { label:'Users', data:[32000,20000,15000,3000,500], backgroundColor:C.teal },
+            { label:'Sent', data:[98000,55000,52000,9500,800], backgroundColor:C.orange },
+            { label:'Delivered', data:[68000,33000,38000,6800,500], backgroundColor:C.green }
+        ]}, options:{ responsive:true, maintainAspectRatio:false, scales:{ x:{grid:{display:false}}, y:{ticks:{callback:v=>(v/1000)+'K'},grid:{color:'#edf2f7'}} } } });
+
+        // Property pie
+        new Chart(document.getElementById('c-prop-pie'), { type:'doughnut', data:{ labels:['Prop A (40.5%)','Prop B (12.8%)','Prop C (13.5%)','Prop D (2.6%)','Other (30.6%)'], datasets:[{ data:[75,23.7,25,4.8,56.9], backgroundColor:[C.blue,C.orange,C.green,C.purple,'#cbd5e0'], borderWidth:2, borderColor:'#fff' }] }, options:{ responsive:true, maintainAspectRatio:false, cutout:'55%', plugins:{ legend:{ position:'right' } } } });
+    }
+
+    if (page === 'revenue') {
+        new Chart(document.getElementById('c-rev-trend'), { type:'bar', data:{ labels:months, datasets:[
+            { label:'Revenue (M)', data:[27.6,16.2,27.9,51.5,62.6], backgroundColor:C.blue, borderRadius:4 }
+        ]}, options:{ responsive:true, maintainAspectRatio:false, scales:{ x:{grid:{display:false}}, y:{ticks:{callback:v=>v+'M'},grid:{color:'#edf2f7'}} } } });
+
+        new Chart(document.getElementById('c-rev-channel'), { type:'doughnut', data:{ labels:['App Push','EDM','SMS','WhatsApp','ZNS'], datasets:[{ data:[105.7,9,5,25.5,40.6], backgroundColor:[C.green,C.blue,C.teal,C.orange,C.purple], borderWidth:2, borderColor:'#fff' }] }, options:{ responsive:true, maintainAspectRatio:false, cutout:'50%', plugins:{ legend:{position:'right'} } } });
+
+        new Chart(document.getElementById('c-rev-prop'), { type:'doughnut', data:{ labels:['Prop A','Prop B','Prop C','Prop D','Other'], datasets:[{ data:[75,23.7,25,4.8,56.9], backgroundColor:[C.blue,C.orange,C.green,C.purple,'#cbd5e0'], borderWidth:2, borderColor:'#fff' }] }, options:{ responsive:true, maintainAspectRatio:false, cutout:'50%', plugins:{ legend:{position:'right'} } } });
+    }
+
+    if (page === 'survey') {
+        new Chart(document.getElementById('c-surv-trend'), { type:'line', data:{ labels:weeks, datasets:[
+            { label:'Avg. Score', data:genf(20,3.8,4.4), borderColor:C.yellow, backgroundColor:'rgba(214,158,46,0.1)', fill:true, tension:.3, pointRadius:3, borderWidth:2 }
+        ]}, options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{min:3,max:5,grid:{color:'#edf2f7'}}, x:{grid:{display:false}} } } });
+
+        new Chart(document.getElementById('c-surv-dist'), { type:'bar', data:{ labels:['1 Star','2 Stars','3 Stars','4 Stars','5 Stars'], datasets:[{ label:'Responses', data:[42,86,310,1124,1285], backgroundColor:[C.red,C.orange,C.yellow,C.blue,C.green], borderRadius:4 }] }, options:{ responsive:true, maintainAspectRatio:false, scales:{ x:{grid:{display:false}}, y:{grid:{color:'#edf2f7'}} } } });
+
+        new Chart(document.getElementById('c-surv-ch'), { type:'bar', data:{ labels:['WhatsApp','App Push','EDM','ZNS','SMS'], datasets:[{ label:'Avg. Score', data:[4.21,4.08,4.15,3.95,3.88], backgroundColor:[C.orange,C.green,C.blue,C.purple,C.teal], borderRadius:4 }] }, options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{min:3,max:5,grid:{color:'#edf2f7'}}, x:{grid:{display:false}} } } });
+    }
+
+    if (page === 'channel') {
+        new Chart(document.getElementById('c-chn-trend'), { type:'line', data:{ labels:weeks, datasets:[
+            { label:'WhatsApp', data:genf(20,30,45), borderColor:C.orange, tension:.3, pointRadius:2, borderWidth:2 },
+            { label:'App Push', data:genf(20,90,98), borderColor:C.green, tension:.3, pointRadius:2, borderWidth:2 },
+            { label:'EDM', data:genf(20,82,92), borderColor:C.blue, tension:.3, pointRadius:2, borderWidth:2 },
+            { label:'ZNS', data:genf(20,0,5), borderColor:C.purple, tension:.3, pointRadius:2, borderWidth:2 },
+            { label:'SMS', data:genf(20,0,5), borderColor:C.teal, tension:.3, pointRadius:2, borderWidth:2 }
+        ]}, options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{ticks:{callback:v=>v+'%'},grid:{color:'#edf2f7'}}, x:{grid:{display:false}} } } });
+
+        new Chart(document.getElementById('c-chn-ctr'), { type:'bar', data:{ labels:['WhatsApp','App Push','EDM','ZNS','SMS'], datasets:[{ label:'CTR %', data:[28.4,19.2,24.7,16.8,12.1], backgroundColor:[C.orange,C.green,C.blue,C.purple,C.teal], borderRadius:4 }] }, options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{ticks:{callback:v=>v+'%'},grid:{color:'#edf2f7'}}, x:{grid:{display:false}} } } });
+
+        new Chart(document.getElementById('c-chn-conv'), { type:'bar', data:{ labels:['WhatsApp','App Push','EDM','ZNS','SMS'], datasets:[{ label:'Conv. %', data:[0.12,0.08,0.15,0.06,0.04], backgroundColor:[C.orange,C.green,C.blue,C.purple,C.teal], borderRadius:4 }] }, options:{ responsive:true, maintainAspectRatio:false, scales:{ y:{ticks:{callback:v=>v+'%'},grid:{color:'#edf2f7'}}, x:{grid:{display:false}} } } });
+    }
+
+    if (page === 'content') {
+        new Chart(document.getElementById('c-cnt-type'), { type:'bar', data:{ labels:['Welcome Offer','Booking Reminder','Cross-sell','Survey','Flash Sale','Loyalty','New Launch','Birthday','Re-engage','Holiday'], datasets:[{ label:'CTR %', data:[34.2,31.5,29.8,27.1,26.4,24.9,23.6,22.1,20.8,19.3], backgroundColor:C.blue, borderRadius:4 }] }, options:{ responsive:true, maintainAspectRatio:false, indexAxis:'y', scales:{ x:{ticks:{callback:v=>v+'%'},grid:{color:'#edf2f7'}}, y:{grid:{display:false}} } } });
+    }
+
+    if (page === 'user') {
+        new Chart(document.getElementById('c-usr-trend'), { type:'bar', data:{ labels:weeks, datasets:[
+            { label:'New Users', data:gen(20,2000,5500), backgroundColor:C.blue, borderRadius:3 },
+            { label:'Returning', data:gen(20,800,2200), backgroundColor:C.green, borderRadius:3 }
+        ]}, options:{ responsive:true, maintainAspectRatio:false, scales:{ x:{stacked:true,grid:{display:false}}, y:{stacked:true,ticks:{callback:v=>(v/1000)+'K'},grid:{color:'#edf2f7'}} } } });
+
+        new Chart(document.getElementById('c-usr-lang'), { type:'doughnut', data:{ labels:['Vietnamese (62%)','English (24%)','Korean (8%)','Other (6%)'], datasets:[{ data:[62,24,8,6], backgroundColor:[C.blue,C.orange,C.green,'#cbd5e0'], borderWidth:2, borderColor:'#fff' }] }, options:{ responsive:true, maintainAspectRatio:false, cutout:'50%', plugins:{ legend:{position:'right'} } } });
+
+        new Chart(document.getElementById('c-usr-type'), { type:'doughnut', data:{ labels:['Leisure (71%)','Business (18%)','Group (11%)'], datasets:[{ data:[71,18,11], backgroundColor:[C.blue,C.orange,C.teal], borderWidth:2, borderColor:'#fff' }] }, options:{ responsive:true, maintainAspectRatio:false, cutout:'50%', plugins:{ legend:{position:'right'} } } });
+    }
+
+    if (page === 'logic') {
+        new Chart(document.getElementById('c-logic-funnel'), { type:'bar', data:{ labels:['Triggered','Message Sent','Delivered','Opened','Clicked','Converted'], datasets:[{ label:'Users', data:[149800,128400,98200,62100,28400,185], backgroundColor:[C.blue,C.teal,C.green,C.orange,C.yellow,C.red], borderRadius:4 }] }, options:{ responsive:true, maintainAspectRatio:false, scales:{ x:{grid:{display:false}}, y:{ticks:{callback:v=>v>=1000?(v/1000)+'K':v},grid:{color:'#edf2f7'}} } } });
+    }
+}
+
+// Init overall on load
+initCharts('overall');
+</script>
+</body>
+</html>
