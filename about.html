@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Le Thanh Tung | Data Analyst</title>
+    <title>About | Le Thanh Tung</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -19,8 +19,8 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link active" href="index.html">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="about.html">About</a></li>
                     <li class="nav-item"><a class="nav-link" href="projects.html">Projects</a></li>
                     <li class="nav-item"><a class="nav-link" href="skills.html">Skills</a></li>
                     <li class="nav-item"><a class="nav-link" href="experience.html">Experience</a></li>
@@ -31,52 +31,45 @@
     </nav>
     <div class="sticky-nav-wrapper"></div>
 
-    <section class="hero" id="home">
-        <div class="container text-center">
-            <div class="hero-tag">Open to opportunities</div>
-            <h1 class="mb-3">Le Thanh Tung</h1>
-            <!-- <p class="lead mb-4">Data Analyst &mdash; Turning Raw Data into Business Growth</p> -->
-            <p class="lead mb-4">Senior Data Analyst</p>
-            <div class="d-flex justify-content-center gap-3 mt-4 mb-5">
-                <a href="https://www.linkedin.com/in/tunglt-da" class="social-link" target="_blank"><i class="fab fa-linkedin"></i></a>
-                <a href="https://github.com/tunglt-da" class="social-link" target="_blank"><i class="fab fa-github"></i></a>
-                <a href="mailto:tunglt.da@gmail.com" class="social-link"><i class="fas fa-envelope"></i></a>
-            </div>
-            <a href="projects.html" class="btn btn-hero">View My Work</a>
-            <a href="#" class="btn btn-outline-custom ms-2" data-bs-toggle="modal" data-bs-target="#resumeModal">Download Resume <i class="fas fa-download ms-1"></i></a>
+    <section class="page-header">
+        <div class="container">
+            <h1>About Me</h1>
+            <p class="lead">Data Analyst focused on driving measurable business impact</p>
         </div>
     </section>
 
-    <section class="py-5 bg-dark-alt">
+    <section class="py-5 about-section">
         <div class="container">
-            <div class="row g-4 text-center">
-                <div class="col-md-3 col-6">
-                    <div class="skill-category py-4">
-                        <i class="fas fa-briefcase skill-icon"></i>
-                        <h4 class="mt-2">4+ Years</h4>
-                        <p class="mb-0">Data Analytics Experience</p>
-                    </div>
+            <div class="row align-items-center">
+                <div class="col-lg-5 mb-4 mb-lg-0">
+                    <img src="https://drscdn.500px.org/photo/1112198999/q%3D50_h%3D450_of%3D1/v2?sig=a2e6150bfbef731abf935cf0980366c099846c42489111a76eca2f6ce3d5dc14" alt="Working at desk" class="img-fluid shadow">
                 </div>
-                <div class="col-md-3 col-6">
-                    <div class="skill-category py-4">
-                        <i class="fas fa-database skill-icon"></i>
-                        <h4 class="mt-2">SQL & Python</h4>
-                        <p class="mb-0">Core Technical Stack</p>
+                <div class="col-lg-7">
+                    <p class="lead mb-4">
+                        Data Analyst with <strong>4+ years of experience</strong> in building automated data pipelines, 
+                        real-time dashboards, <strong>customer segmentation</strong>, <strong>revenue forecasting</strong>, 
+                        and <strong>marketing funnel optimization</strong>. I specialize in transforming raw data into 
+                        actionable insights that drive revenue growth and operational efficiency.
+                    </p>
+                    <p class="mb-4">
+                        Currently at <strong>VinSmart Future (Vingroup)</strong>, I lead cross-functional analytics projects 
+                        including P&amp;L analysis, operational KPI standardization, and management reporting. 
+                        My strength lies in <strong>proactively building analysis frameworks</strong> rather than waiting for requests, 
+                        combining technical depth (SQL, Python, BI tools, ETL/Airflow, <strong>BigQuery/GCP</strong>) 
+                        with strong business understanding to deliver solutions that stakeholders actually use.
+                    </p>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <p class="about-check"><i class="fas fa-check-circle"></i> Customer Segmentation &amp; Lifecycle Analysis</p>
+                            <p class="about-check"><i class="fas fa-check-circle"></i> KPI Dashboards &amp; Revenue Analytics</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="about-check"><i class="fas fa-check-circle"></i> Marketing Funnel &amp; Performance Tracking</p>
+                            <p class="about-check"><i class="fas fa-check-circle"></i> ETL Pipelines &amp; Data Automation</p>
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-3 col-6">
-                    <div class="skill-category py-4">
-                        <i class="fas fa-chart-bar skill-icon"></i>
-                        <h4 class="mt-2">BI Dashboards</h4>
-                        <p class="mb-0">Power BI & Looker</p>
-                    </div>
-                </div>
-                <div class="col-md-3 col-6">
-                    <div class="skill-category py-4">
-                        <i class="fas fa-cogs skill-icon"></i>
-                        <h4 class="mt-2">ETL Pipelines</h4>
-                        <p class="mb-0">Airflow & Automation</p>
-                    </div>
+                    <a href="contact.html" class="btn btn-primary-custom">Get In Touch</a>
+                    <a class="btn btn-outline-custom ms-2" href="#" data-bs-toggle="modal" data-bs-target="#resumeModal">Download Resume <i class="fas fa-download ms-1"></i></a>
                 </div>
             </div>
         </div>
@@ -119,13 +112,18 @@
     </div>
 
     <script>
+        // Lazy-load iframe when modal opens
         document.getElementById('resumeModal').addEventListener('shown.bs.modal', function() {
-            var frame = document.getElementById('resumeFrame');
-            if (!frame.src || frame.src === window.location.href) frame.src = 'resume.html';
+            const frame = document.getElementById('resumeFrame');
+            if (!frame.src || frame.src === window.location.href) {
+                frame.src = 'resume.html';
+            }
         });
         document.getElementById('resumeModal').addEventListener('hidden.bs.modal', function() {
             document.getElementById('resumeFrame').src = '';
         });
+
+        // Download PDF from Google Drive
         document.getElementById('exportPdfBtn').addEventListener('click', function(e) {
             e.preventDefault();
             window.location.href = 'https://drive.google.com/uc?export=download&id=1KfaoFCPFXSUlGWiHPDOqHMaCPrhTwyCu';

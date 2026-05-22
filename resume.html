@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Le Thanh Tung — Resume</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+        font-family: 'IBM Plex Sans', sans-serif;
+        color: #1e293b;
+        background: #f1f5f9;
+        line-height: 1.5;
+        font-size: 9.5pt;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+ 
+    /* A4 at 96dpi = 794 x 1123 px */
+    .page {
+        width: 794px;
+        min-height: 1123px;
+        margin: 20px auto;
+        background: #fff;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+        padding: 0;
+        overflow: hidden;
+    }
+ 
+    .cv-header {
+        background: #1a365d;
+        color: #fff;
+        padding: 24px 32px 20px;
+    }
+    .cv-header h1 { font-size: 22pt; font-weight: 700; letter-spacing: .5pt; margin-bottom: 2px; }
+    .cv-header .title { font-size: 12pt; font-weight: 400; color: #93c5fd; margin-bottom: 8px; }
+    .cv-header .contacts { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 8.5pt; color: #cbd5e1; }
+    .cv-header .contacts a { color: #93c5fd; text-decoration: none; }
+    .cv-header .contacts span::before { content: ''; display: inline-block; width: 3px; height: 3px; background: #64748b; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+ 
+    .cv-body { padding: 18px 32px 24px; }
+ 
+    .section { margin-bottom: 12px; }
+    .section-title {
+        font-size: 8.5pt; font-weight: 700; text-transform: uppercase;
+        letter-spacing: 1.2pt; color: #2563eb;
+        border-bottom: 1.5px solid #2563eb;
+        padding-bottom: 3px;
+        margin-bottom: 8px;
+    }
+ 
+    .summary { font-size: 9pt; color: #334155; line-height: 1.6; }
+ 
+    .job { margin-bottom: 10px; }
+    .job-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1px; }
+    .job-title { font-size: 10pt; font-weight: 700; color: #1e293b; }
+    .job-date { font-size: 8.5pt; color: #64748b; font-style: italic; white-space: nowrap; }
+    .job-company { font-size: 8.5pt; color: #64748b; margin-bottom: 4px; }
+    .job ul { padding-left: 16px; }
+    .job li { font-size: 9pt; color: #334155; margin-bottom: 2px; line-height: 1.5; }
+    .job li strong { color: #1e293b; }
+ 
+    .kp-label { font-size: 8.5pt; font-weight: 600; color: #2563eb; font-style: italic; margin: 4px 0 2px; }
+    .kp-item { font-size: 9pt; color: #334155; margin-bottom: 2px; padding-left: 16px; position: relative; line-height: 1.5; }
+    .kp-item::before { content: '\25B8'; position: absolute; left: 4px; color: #2563eb; font-size: 8pt; }
+    .kp-item strong { color: #1e293b; }
+ 
+    .skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 20px; }
+    .skill-row { font-size: 9pt; }
+    .skill-row strong { color: #1e293b; font-weight: 600; }
+ 
+    /* Download bar - only visible when opened directly */
+    .download-bar {
+        position: fixed; top: 0; left: 0; right: 0;
+        background: #1a365d; color: #fff;
+        display: flex; align-items: center; justify-content: center;
+        gap: 10px; padding: 6px 12px;
+        font-size: 9pt; z-index: 1000;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+    }
+    .download-bar a {
+        background: #2563eb; color: #fff;
+        padding: 4px 14px; border-radius: 4px;
+        text-decoration: none; font-weight: 600;
+    }
+    .download-bar a:hover { background: #1d4ed8; }
+ 
+    @media print {
+        body { background: #fff; }
+        .page { box-shadow: none; margin: 0; width: 100%; min-height: auto; }
+        .download-bar { display: none !important; }
+    }
+    @media (max-width: 800px) {
+        .page { width: 100%; min-height: auto; margin: 0; box-shadow: none; }
+        .cv-header, .cv-body { padding-left: 16px; padding-right: 16px; }
+        .skills-grid { grid-template-columns: 1fr; }
+    }
+</style>
+</head>
+<body>
+
+<!-- Download bar (hidden in print) -->
+<!-- <div class="download-bar no-print">
+    <span>Le Thanh Tung — Data Analyst Resume</span>
+    <a href="#" onclick="window.print(); return false;">Download PDF</a>
+</div> -->
+
+<div class="page" style="margin-top: 50px;">
+
+    <!-- Header -->
+    <div class="cv-header">
+        <h1>LE THANH TUNG</h1>
+        <div class="title">Senior Data Analyst</div>
+        <div class="contacts">
+            <span>Ha Noi, Viet Nam</span>
+            <span>+84 367 432 197</span>
+            <span><a href="mailto:tunglt.da@gmail.com">tunglt.da@gmail.com</a></span>
+        </div>
+        <div class="contacts" style="margin-top:.3rem;">
+            <span><a href="https://www.linkedin.com/in/tunglt-da" target="_blank">linkedin.com/in/tunglt-da</a></span>
+            <span><a href="https://github.com/tunglt-da" target="_blank">github.com/tunglt-da</a></span>
+        </div>
+    </div>
+
+    <!-- Body -->
+    <div class="cv-body">
+
+        <!-- Summary -->
+        <div class="section">
+            <div class="section-title">Summary</div>
+            <p class="summary">
+                Data Analyst with 4+ years of experience in building automated data pipelines, real-time dashboards, customer segmentation, revenue forecasting, and marketing funnel optimization. Specialize in transforming raw data into actionable insights that drive revenue growth and operational efficiency. Strength lies in proactively building analysis frameworks, combining technical depth (SQL, Python, BI tools, ETL/Airflow, BigQuery/GCP) with strong business understanding.
+            </p>
+        </div>
+
+        <!-- Experience -->
+        <div class="section">
+            <div class="section-title">Work Experience</div>
+
+            <!-- Job 1 -->
+            <div class="job">
+                <div class="job-header">
+                    <div class="job-title">Data Analyst</div>
+                    <div class="job-date">Oct 2025 &ndash; Present</div>
+                </div>
+                <div class="job-company">VinSmart Future JSC (Vingroup)</div>
+                <ul>
+                    <li>Analyzed operational data and P&amp;L reports, delivering actionable insights to optimize business performance and support management decisions</li>
+                    <li>Worked cross-functionally with multiple departments to standardize reporting formats and operational KPIs</li>
+                    <li>Proactively explored, extracted, and processed data from various sources to improve data accessibility across the organization</li>
+                    <li>Collaborated with Data Engineering and Data Science teams to improve data quality and pipeline reliability</li>
+                    <li>Designed and maintained dashboards tailored to management needs for tracking business and operational efficiency</li>
+                    <li>Mentored and supported team members on data analysis techniques, tools, and best practices</li>
+                </ul>
+                <div class="key-projects-label">Key Projects:</div>
+                <div class="key-project-item"><strong>Revenue Forecast System</strong> &mdash; built real-time forecast dashboard (30-min refresh, 7 dimensions), giving management intra-day visibility where previously only end-of-day actuals existed</div>
+                <div class="key-project-item"><strong>Onboarding Journey</strong> &mdash; designed omni-channel engagement flow (5 channels), increased CTR and generated measurable cross-sell revenue</div>
+                <div class="key-project-item"><strong>MiniApp Performance</strong> &mdash; built unified analytics (funnel, promotion ROI, ops health), replaced scattered spreadsheets used by 4 teams</div>
+            </div>
+
+            <!-- Job 2 -->
+            <div class="job">
+                <div class="job-header">
+                    <div class="job-title">Data Analyst &amp; BI Analyst</div>
+                    <div class="job-date">Apr 2022 &ndash; Sep 2025</div>
+                </div>
+                <div class="job-company">Nin Sing Logistics Co., Ltd.</div>
+                <ul>
+                    <li>Built automated reporting &amp; anomaly detection system, reducing manual work by <strong>85%</strong></li>
+                    <li>Designed real-time dashboards on BigQuery + Power BI/Looker with hourly refresh for business KPI monitoring</li>
+                    <li>Developed ETL pipelines with Airflow, increasing data reliability from 65% to <strong>99.5% uptime</strong></li>
+                    <li>Proactively built analysis frameworks and KPI systems rather than waiting for requests</li>
+                    <li>Collaborated cross-functionally with operations, finance, and management teams to drive data-informed decisions</li>
+                </ul>
+                
+                <div class="key-projects-label">Key Projects:</div>
+                <div class="key-project-item"><strong>Volume Forecast</strong> &mdash; built demand forecasting models to support capacity planning and resource allocation</div>
+                <div class="key-project-item"><strong>Automation Report/Email</strong> &mdash; automated recurring reports and email delivery, reducing manual work by 85%</div>
+                <div class="key-project-item"><strong>BI Portal</strong> &mdash; designed centralized BI portal on Power BI/Looker for real-time KPI monitoring across departments</div>
+            </div>
+
+            <!-- Job 3 -->
+            <div class="job">
+                <div class="job-header">
+                    <div class="job-title">Supply Chain Data Analyst</div>
+                    <div class="job-date">Jul 2020 &ndash; Nov 2021</div>
+                </div>
+                <div class="job-company">Viet Tinh Anh JSC</div>
+                <ul>
+                    <li>Reduced excess stock by <strong>20&ndash;30%</strong> while maintaining &gt;98% fulfillment rate</li>
+                    <li>Lowered costs by 6&ndash;8% and improved on-time delivery by 10% through optimization analysis</li>
+                    <li>Automated dashboards saving <strong>20+ hours/week</strong> of manual reporting</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Skills -->
+        <div class="section">
+            <div class="section-title">Technical Skills</div>
+            <div class="skills-grid">
+                <div class="skill-row"><strong>Data &amp; SQL:</strong> SQL (BigQuery, PostgreSQL), Python (Pandas, NumPy, SciPy), Statistics &amp; A/B Testing</div>
+                <div class="skill-row"><strong>BI &amp; Visualization:</strong> Power BI / DAX, Looker Studio, Excel / Google Sheets</div>
+                <div class="skill-row"><strong>Data Engineering:</strong> Apache Airflow, ETL / Data Modeling, Python Automation</div>
+                <div class="skill-row"><strong>Cloud &amp; Platform:</strong> BigQuery / GCP, Firebase Analytics, Google Apps Script / API</div>
+            </div>
+        </div>
+
+        <!-- Education -->
+        <div class="section">
+            <div class="section-title">Education</div>
+            <div class="edu-placeholder" style="color:#1e293b;font-style:normal;">
+                <div class="job-header">
+                    <div class="job-title">Engineering Degree — Chemical Engineering</div>
+                    <div class="job-date">2015 &ndash; 2020</div>
+                </div>
+                <div class="job-company">Hanoi University of Science and Technology</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>
